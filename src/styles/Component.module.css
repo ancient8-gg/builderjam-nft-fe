@@ -1,0 +1,25 @@
+.layout::-webkit-scrollbar {
+  display: none;
+}
+
+.nft {
+  background: linear-gradient(to bottom right, #a00a0a5a, #cd0d0d77);
+  /* Add the flare effect */
+  background-image: radial-gradient(circle at bottom right, rgba(11, 88, 11, 0.291), transparent);
+}
+
+.blinkingText {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
