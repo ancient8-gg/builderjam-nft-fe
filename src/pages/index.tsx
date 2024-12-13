@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { NextPage } from 'next';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import { Address } from 'viem';
+import { useAccount, useReadContract, useWatchContractEvent, useWriteContract } from 'wagmi';
+import { Address, zeroAddress } from 'viem';
 
 import Layout from '../components/Layout';
 import NftViewer from '../components/NftViewer';
@@ -12,7 +12,7 @@ import { BUILDER_JAM_NFT_ABI } from '../abi/builder-jam-nft.abi';
 
 const Home: NextPage = () => {
   const { toast } = useToast();
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
   const [tokenIds, setTokenIds] = useState<string[]>([]);
@@ -36,6 +36,20 @@ const Home: NextPage = () => {
       toast(String(err), 'error');
     }
   };
+
+  useWatchContractEvent({
+    address: process.env.NEXT_PUBLIC_COLLECTION_ADDRESS as Address,
+    abi: BUILDER_JAM_NFT_ABI,
+    eventName: 'Transfer',
+    args: {
+      from: zeroAddress,
+      to: address,
+    },
+    onLogs(events) {
+      const tokenIds = events.map((event) => String((event as any).args.tokenId));
+      setTokenIds((prev) => prev.concat(tokenIds));
+    },
+  });
 
   return (
     <Layout>
