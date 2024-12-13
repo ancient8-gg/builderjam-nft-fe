@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import type { NextPage } from 'next';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { Address } from 'viem';
 
 import Layout from '../components/Layout';
 import NftViewer from '../components/NftViewer';
 import Minter from '../components/Minter';
+import { useToast } from '../components/Toast';
 
 import { BUILDER_JAM_NFT_ABI } from '../abi/builder-jam-nft.abi';
 
 const Home: NextPage = () => {
+  const { toast } = useToast();
   const { isConnected } = useAccount();
+  const { writeContractAsync } = useWriteContract();
 
-  const [tokenIds, setTokenIds] = useState<string[]>(['1']);
+  const [tokenIds, setTokenIds] = useState<string[]>([]);
 
   const { data: tokenURI } = useReadContract({
     address: process.env.NEXT_PUBLIC_COLLECTION_ADDRESS as Address,
@@ -20,6 +23,19 @@ const Home: NextPage = () => {
     functionName: 'tokenURI',
     args: [0],
   });
+
+  const handleMint = async () => {
+    toast('Start minting...');
+    try {
+      await writeContractAsync({
+        abi: BUILDER_JAM_NFT_ABI,
+        address: process.env.NEXT_PUBLIC_COLLECTION_ADDRESS as Address,
+        functionName: 'mint',
+      });
+    } catch (err) {
+      toast(String(err), 'error');
+    }
+  };
 
   return (
     <Layout>
@@ -31,7 +47,7 @@ const Home: NextPage = () => {
           metadataUri={tokenURI as string}
         />
       ))}
-      <Minter onMint={() => {}} disabled={!isConnected} />
+      <Minter onMint={() => handleMint()} disabled={!isConnected} />
     </Layout>
   );
 };
