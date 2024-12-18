@@ -1,18 +1,17 @@
 import { getConfigs } from '../configs';
 import { useMetadata } from '../hooks/useMetadata';
 import Css from '../styles/Component.module.css';
+import { Metadata } from '../types/metadata';
 
 interface NftViewerProps {
-  address?: string;
-  tokenId?: string;
-  metadataUri?: string;
+  address: string;
+  tokenId: string;
+  metadata?: Metadata;
 }
 
-const NftViewer: React.FC<NftViewerProps> = ({ address = '', tokenId = '', metadataUri }) => {
-  const isAvailable = !!address && !!tokenId && !!metadataUri;
-  const {
-    data: { name, image },
-  } = useMetadata(metadataUri);
+const NftViewer: React.FC<NftViewerProps> = ({ address, tokenId, metadata }) => {
+  const isAvailable = !!address && !!tokenId && !!metadata;
+  const { name, image } = metadata ?? {};
 
   function openScan() {
     const { scan } = getConfigs();
